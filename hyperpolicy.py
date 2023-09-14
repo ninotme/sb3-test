@@ -29,7 +29,7 @@ class HyperPolicy:
         for i in range(N):
             mus = []
             sigmas = []
-            for j in actor_params[i]:
+            for j in range(len(actor_params[i])):
                 theta = actor_params[i][j]
                 score_mu = (theta - self.mu[j]) / self.sigma[j] ** 2
                 score_sigma = (theta - self.mu[j])**2 - self.sigma[i]/ (self.sigma[j] ** 3)
@@ -44,6 +44,8 @@ class HyperPolicy:
 
         grad_mu = np.divide(sum_mu, N)
         grad_sigma = np.divide(sum_sigma, N)
+        
+        #2 * dim(param_space) vector
         return [grad_mu, grad_sigma]
 
         pass
