@@ -1,4 +1,4 @@
-mport numpy as np
+import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from stable_baselines3.common.env_checker import check_env
