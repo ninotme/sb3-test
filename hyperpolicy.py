@@ -1,5 +1,5 @@
 import numpy as np
-from gymnasium import spaces
+from gymnasium  import spaces
 class HyperPolicy:
     def __init__(self, param_number, alpha=0.5):
 
@@ -10,22 +10,27 @@ class HyperPolicy:
         self.mu= [ 0.5 for i in range(self.param_number)]
         self.sigma = [0.5 for i in range(self.param_number)]
 
-        self.theta = self.act(0)
+        
         print("done initializing")
 
     # Called by algorithm
     def act(self, state):
         return self.theta
-        pass
+        
 
     #calcolo del delta_rho
     def eval_gradient(self, actor_params, disc_returns):
         N = len(disc_returns)
 
-        sum_sigma = [0 for _ in len(actor_params[0])]
-        sum_mu = [0 for _ in len(actor_params[0])]
+        print("actor_params: ", actor_params[0], "len ", len(actor_params[0]))
+        sum_sigma = [0 for _ in range(len(actor_params[0])) ]
+        
+        
+        sum_mu = [0 for _ in range( len(actor_params[0]) ) ]
 
 
+        
+        #this can be done in a smarter way TBD once it works
         for i in range(N):
             mus = []
             sigmas = []
@@ -122,4 +127,4 @@ if __name__ == '__main__':
     delta_rho = np.multiply(grad, step_size)
     hp.set_params(hp.get_rho() + delta_rho)
     thetaf = hp.resample()
-    print(f'fine')
+    print('update distribution: ', hp.get_rho[1])
