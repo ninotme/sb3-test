@@ -2,6 +2,7 @@ import numpy as np
 from gymnasium  import spaces
 
 forced_policy = False
+verbose = True
 
 class HyperPolicy:
     def __init__(self, param_number, alpha=0.5):
@@ -10,24 +11,31 @@ class HyperPolicy:
         self.param_number = param_number
 
         # Inizializzazione della distribuzione iperparamentrica
-        self.mu= [ 0.5 for i in range(self.param_number)]
-        self.sigma = [1 for i in range(self.param_number)]
+        self.mu= [ 1 for i in range(self.param_number)]
+        self.sigma = [0.7 for i in range(self.param_number)]
 
+        self.theta = []
         
         print("done initializing")
 
     # Called by algorithm
     #this should be overwritten by a policy 
     def act(self, state):
-        #print("act::state[0]: ", state[0])
+        print("act::state[0]: ", state[0])
         if forced_policy: 
             return 0
         
-        feature = np.multiply(self.mu[0], state[0])
-        print("feature = ", feature) 
+        feature1 =  np.multiply(self.theta[0], state[0]) 
+        feature2 =  np.multiply(self.theta[1], state[0])
         
-        if feature > 3:
+        print("feature1 = ", self.theta[0], " x ", state[0])
+        print("feature2 = ", self.theta[1], " x ", state[0]) 
+        print("feature1 = ", feature1)
+        print("feature2 = ", feature2) 
+        
+        if feature1 > 3 and feature2 < 6 : 
             
+            # go left (in the direction of the goal) 
             return 0
         else:
             return 1
@@ -56,21 +64,49 @@ class HyperPolicy:
             sigmas = []
             for j in range(len(actor_params[i])):
                 theta = actor_params[i][j]
+                
                 score_mu = (theta - self.mu[j]) / self.sigma[j] ** 2
-                score_sigma = (theta - self.mu[j])**2 - (self.sigma[j]**2) / (self.sigma[j] ** 3)
-
+                
+                
+                score_sigma = ((theta - self.mu[j])**2 - (self.sigma[j]**2)) / (self.sigma[j] ** 3)
+                
+                
                 #multiplication for the disc
                 score_mu = score_mu * disc_returns[i]
                 mus.append(score_mu)
+                
+                
                 score_sigma = score_sigma * disc_returns[i]
                 sigmas.append(score_sigma)
+                
+                if verbose: 
+                    print("theta(", j, ") = ", theta)
+                    print("score_mu = ", score_mu)
+                    print("score_sigma = ", score_sigma)
+                    print("mus = ", mus) 
+                    print("sigmas = ", sigmas) 
+                    
             sum_mu = np.add(sum_mu, mus)
+            
+            
             sum_sigma = np.add(sum_sigma, sigmas)
-
+            
+            if verbose: 
+                print("sum_mu = ", sum_mu) 
+                print("sum_sigma = ", sum_sigma) 
+                
         grad_mu = np.divide(sum_mu, N)
         grad_sigma = np.divide(sum_sigma, N)
         
+        if verbose: 
+            print('[', grad_mu, ', \n', grad_sigma, ']' ) 
+        
         #2 * dim(param_space) vector
+        
+       
+        
+        print("grad_sigma = ", grad_sigma) 
+        print("self.sigma = ", self.sigma) 
         return [grad_mu, grad_sigma]
 
        
@@ -84,9 +120,10 @@ class HyperPolicy:
         
 
     def resample(self):
-        return [
+        self.theta = [
             np.random.normal(self.mu[i], (self.sigma[i] ** 2)) for i in range(self.param_number)
         ]
+        return self.theta
 
     #internal methods
     def set_rho(self, mu, sigma):
