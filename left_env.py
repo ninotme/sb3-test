@@ -66,7 +66,7 @@ class GoLeftEnv(gym.Env):
         truncated = False  # we do not limit the number of steps here
 
         # Null reward everywhere except when reaching the goal (left of the grid)
-        reward = 10 if self.agent_pos == 0 else -1
+        reward = 10 if self.agent_pos == 0 else 1.0 / self.agent_pos
 
         # Optionally we can pass additional info, we are not using that for now
         info = {}
@@ -105,8 +105,5 @@ if __name__ == '__main__':
         env.render()
         done = trunc or term
         if done:
-            print('done!!!!!')
-            break
-
             print('done!!!!!')
             break
