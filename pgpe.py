@@ -30,12 +30,13 @@ def eval_trajectory(env, pol, gamma, task_horizon, feature_fun):
         ob, r, trunc, term,  _ = env.step(a)
         ret += r
         print("immediate reward : ",r)  
+        #TODO change this
         disc_ret += gamma**t * r
         t+=1
         done = trunc or term
     if done: 
         print("raggiunto la fine!!!!") 
-        env.reset()
+        
         
     return ret, disc_ret, t
         
@@ -51,7 +52,7 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
     if save_to: format_strs.append('csv')
     #logger.configure(dir=save_to, format_strs=format_strs)
 
-    
+    performances = []
     #Learning iteration
     for it in range(max_iterations):
         rho = pol.eval_params() #Higher-order-policy parameters
@@ -64,7 +65,9 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
         
         # populating theta!s! and their respective discounted return
         for ep in range(batch_size):
+           
             theta = pol.resample()
+            print("in episide ", ep, " we sampled theta = ", theta) 
             actor_params.append(theta)
             ret, disc_ret, ep_len = eval_trajectory(env, pol, gamma, task_horizon, feature_fun)
             rets.append(ret)
@@ -101,16 +104,22 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
         print("grad[0]: ", grad[0])
         print("grad[1]: ", grad[1]) 
         
-        delta_rho = [step_size_it * grad[0], 
+        print("rho = ", pol.get_rho())
+        delta_rho = [step_size_it *  grad[0], 
                      step_size_it * grad[1]]
         print("delta_rho: ", delta_rho)
         
         #update mu 
-        #hardcoded because stupid python typesystem
+        #hardcoded because python weak typesystem is full of surprise
         update = []
         for i in range(len(rho)):
             update.append(delta_rho[i] + rho[i]) 
-        test = [rho[0] + delta_rho[0], rho[1] + delta_rho[1]]
+        
+        #TODO Trova un modo per non fare divergere sigma 
+        # hack: mantieni sigma uguale 
+        #test = [rho[0] + delta_rho[0], rho[1] + delta_rho[1]]
+        test = [rho[0] + delta_rho[0], [0.5, 0.5]]
+        
         print("update: ", update) 
         
         print("rho+delta_rho = ", test) 
@@ -118,9 +127,12 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
         
         pol.set_params(test)
         
+        print("after the iteration ", it, "we have rho = ",pol.get_rho())
        #logger.record_tabular('StepSize', step_size_it)
         #logger.record_tabular('GradInftyNorm', gradmaxnorm)
        # logger.record_tabular('Grad2Norm', grad2norm) 
        # logger.dump_tabular()
         
-    
+        performances.append(np.mean(disc_rets)) 
+    return performances
+
