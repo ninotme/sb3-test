@@ -1,1 +1,5 @@
 run learn_lq.py
+
+Il codice e` parzialmente duplicato dalla directory base perche` l'env utilizza 
+la libreria vecchia `gym` e `python 3.6` mentre nella directory superiore il codice 
+utilizza `gymnasium` e `python 3.9` 
