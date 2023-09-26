@@ -18,9 +18,9 @@ performances, rho_coll = pgpe.learn(
     env=env, 
     pol=hp, 
     gamma=0.4,
-    step_size=0.001, 
+    step_size=0.01, 
     batch_size=10, 
-    task_horizon=20, 
+    task_horizon=30, 
     max_iterations=100
     )
 
@@ -71,6 +71,10 @@ if eval:
         
         done = trunc or term
         env.render()
+        
+        if done: 
+            env.reset() 
+            
         
         if done: 
             env.reset() 
