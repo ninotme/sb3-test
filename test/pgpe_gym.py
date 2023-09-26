@@ -17,7 +17,6 @@ Created on Wed Apr  4 18:13:18 2018
 import numpy as np
 #from baselines import logger
 
-
 def eval_trajectory(env, pol, gamma, task_horizon, feature_fun):
     ret = disc_ret = 0
     
@@ -57,7 +56,7 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
     #Learning iteration
     for it in range(max_iterations):
         rho = pol.eval_params() #Higher-order-policy parameters
-        rho_dyn.append(rho[0])  # collect mu during training 
+        rho_dyn.append([rho[0], rho[1]])  # collect mu during training 
         if save_to: np.save(save_to + '/weights_' + str(it), rho)
             
         #Batch of episodes
@@ -120,7 +119,7 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
         #TODO Trova un modo per non fare divergere sigma 
         # hack: mantieni sigma uguale 
         #test = [rho[0] + delta_rho[0], rho[1] + delta_rho[1]]
-        test = [rho[0] + delta_rho[0], [1]]
+        test = [rho[0] + delta_rho[0], rho[1]+ delta_rho[1]]
         
         print("update: ", update) 
         
