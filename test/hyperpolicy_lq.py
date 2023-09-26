@@ -122,7 +122,7 @@ class HyperPolicy:
         
         #print('new theta: ', self.theta) 
         
-        self.theta = [ normal(self.mu[i], self.sigma[i]) for i in range(self.param_number) ] 
+        self.theta = [ normal(self.mu[i], self.sigma[i]**2) for i in range(self.param_number) ] 
         return self.theta[0]
 
     #internal methods
