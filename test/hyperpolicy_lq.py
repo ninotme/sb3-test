@@ -3,20 +3,24 @@ from gymnasium  import spaces
 from numpy.random import normal
 
 forced_policy = False
-verbose = True
+verbose = False
 
 class HyperPolicy:
-    def __init__(self, param_number, init_mu=0.5, init_sigma=1, alpha=0.5):
+    def __init__(self, param_number, init_mu=1, init_sigma=0.1, alpha=0.5):
 
         self.alpha = alpha
         self.param_number = param_number
 
-        # Inizializzazione della distribuzione iperparamentrica
-        self.mu = np.full( (1, param_number), init_mu)  
-        self.sigma = np.full( (1, param_number), init_sigma) 
+        # Inizializzazione della distribuzione dei parametri
+        self.mu = np.full( self.param_number, init_mu)
+        print("init_mu = ", self.mu) 
+        self.sigma = np.full(  self.param_number, init_sigma) 
+        print("init_sigma = ", self.sigma) 
         
 
         self.theta = []
+        
+        
         
         print("done initializing")
 
@@ -27,7 +31,7 @@ class HyperPolicy:
         
         
         feat = self.theta[0]
-        print("action taken: ", state)
+        print("action taken: ", feat)
         return feat
         
 
@@ -35,12 +39,13 @@ class HyperPolicy:
     def eval_gradient(self, actor_params, disc_returns, use_baseline=False):
         N = len(disc_returns)
 
-        print("actor_params: ", actor_params[0], "len ", len(actor_params[0]))
-        sum_sigma = [0 for _ in range(len(actor_params[0])) ]
+        print("actor_params: ", actor_params, "len ",
+ len(actor_params))
+        #sum_sigma = [0 for _ in range(len(actor_params[0])) ]
+        sum_sigma = np.full(self.param_number, 0) 
         
-        
-        sum_mu = [0 for _ in range( len(actor_params[0]) ) ]
-
+        #sum_mu = [0 for _ in range( len(actor_params[0]) ) ]
+        sum_mu = np.full(self.param_number, 0)
 
         print("-------in eval_gradient()________") 
         print("disc_returns = ", disc_returns) 
@@ -59,16 +64,24 @@ class HyperPolicy:
             score_mu = (theta - self.mu) /   self.sigma ** 2 
                 
                 
-                
+            # OVERFLOW!?!?!?
+            print("Checking for sigma overflow.....")
+            term1 = (theta - self.mu) 
+            print("theta - mu = ", term1) 
+            
+            numerator = term1 ** 2 - self.sigma ** 2
+            print("numerator = ", numerator) 
+            
             score_sigma = ((theta - self.mu)**2 - (self.sigma ** 2)) / (self.sigma ** 3)
                 
             
             print("===========score_mu: ", score_mu) 
-            print("score_mu = ", score_mu[0])
+            print("score_mu = ", score_mu)
             print("len(score_mu) = ", len(score_mu)) 
             
             print("multiply ", np.multiply(score_mu, disc_ret)) 
             #total_sigma_score += score_sigma * disc_ret
+            print("==========score_sigma: ", score_sigma) 
             
             
            
@@ -120,10 +133,12 @@ class HyperPolicy:
         #print(self.mu, " ", self.sigma, ' ', self.param_number) 
         #self.theta = normal(self.mu, self.sigma, self.param_number)
         
-        #print('new theta: ', self.theta) 
         
-        self.theta = [ normal(self.mu[i], self.sigma[i]**2) for i in range(self.param_number) ] 
-        return self.theta[0]
+        #self.theta = [ normal(self.mu[i], self.sigma[i]**2) for i in range(self.param_number) ] 
+        self.theta  =  normal(self.mu, self.sigma **2 ) 
+        print("sampled theta = ", self.theta) 
+        
+        return self.theta
 
     #internal methods
     def set_rho(self, mu, sigma):
@@ -169,3 +184,4 @@ if __name__ == '__main__':
     hp.set_params(hp.get_rho() + delta_rho)
     thetaf = hp.resample()
     print('update distribution: ', hp.get_rho()[0], hp.get_rho()[1]) 
+
