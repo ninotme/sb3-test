@@ -1,4 +1,4 @@
-from hyperpolicy_lq import HyperPolicy
+from hyperpolicy_lq import GaussianPolicy
 from lq import LQ
 import pgpe_gym as pgpe
 import matplotlib.pyplot as plt 
@@ -7,7 +7,7 @@ import numpy as np
 eval = False
 
 print("===================PGPE LEARN==============")
-hp = HyperPolicy(1) 
+hp = GaussianPolicy(1) 
 theta_before = hp.resample()
 
 rho_before  = hp.get_rho() 
@@ -21,7 +21,7 @@ performances, rho_coll = pgpe.learn(
     step_size=0.01, 
     batch_size=10, 
     task_horizon=30, 
-    max_iterations=100
+    max_iterations=10
     )
 
  

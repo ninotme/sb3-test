@@ -5,7 +5,8 @@ from numpy.random import normal
 forced_policy = False
 verbose = False
 
-class HyperPolicy:
+
+class GaussianPolicy:
     def __init__(self, param_number, init_mu=1, init_sigma=0.1, alpha=0.5):
 
         self.alpha = alpha
