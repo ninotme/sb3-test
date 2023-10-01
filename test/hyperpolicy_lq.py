@@ -7,9 +7,9 @@ verbose = False
 
 
 class GaussianPolicy:
-    def __init__(self, param_number, init_mu=1, init_sigma=0.1, alpha=0.5):
+    def __init__(self, param_number, init_mu=1, init_sigma=2.0):
 
-        self.alpha = alpha
+        
         self.param_number = param_number
 
         # Inizializzazione della distribuzione dei parametri

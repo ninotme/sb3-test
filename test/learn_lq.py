@@ -21,7 +21,8 @@ performances, rho_coll = pgpe.learn(
     step_size=0.9, 
     batch_size=10, 
     task_horizon=30, 
-    max_iterations=1000
+    max_iterations=100,
+    step_size_strategy='vanish'
     )
 
  
