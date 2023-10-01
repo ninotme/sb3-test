@@ -18,10 +18,10 @@ performances, rho_coll = pgpe.learn(
     env=env, 
     pol=hp, 
     gamma=0.4,
-    step_size=0.01, 
+    step_size=0.9, 
     batch_size=10, 
     task_horizon=30, 
-    max_iterations=10
+    max_iterations=1000
     )
 
  
@@ -34,8 +34,8 @@ for rho in rho_coll:
         print("mu : ", rho) 
     
 # print train performances
-rhos = np.array(rho_coll).flatten("F")
-plt.plot(rhos) 
+#rhos = np.array(rho_coll).flatten("F")
+plt.plot(performances) 
 plt.show()
 
 with open('./output.txt', "w+") as file: 

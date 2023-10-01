@@ -106,8 +106,8 @@ def learn(env, pol, gamma, step_size, batch_size, task_horizon, max_iterations,
         print("grad[1]: ", grad[1]) 
         
         print("rho = ", pol.get_rho())
-        delta_rho = [step_size_it *  grad[0], 
-                     step_size_it * grad[1]]
+        delta_rho = [(step_size_it ** it) *  grad[0], 
+                     (step_size_it ** it) * grad[1]]
         print("delta_rho: ", delta_rho)
         
         #update mu 

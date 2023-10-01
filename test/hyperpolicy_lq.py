@@ -136,7 +136,11 @@ class GaussianPolicy:
         
         
         #self.theta = [ normal(self.mu[i], self.sigma[i]**2) for i in range(self.param_number) ] 
-        self.theta  =  normal(self.mu, self.sigma **2 ) 
+        
+        #random.normal needs the standard deviation, not the variance ?(-_-) 
+        
+        #abs because we are are derivating the score function, so the standard deviation can be negative
+        self.theta  =  normal(self.mu, abs(self.sigma) ) 
         print("sampled theta = ", self.theta) 
         
         return self.theta
