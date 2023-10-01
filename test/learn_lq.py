@@ -4,7 +4,7 @@ import pgpe_gym as pgpe
 import matplotlib.pyplot as plt 
 import numpy as np 
 
-eval = False
+eval = True
 
 print("===================PGPE LEARN==============")
 hp = GaussianPolicy(1) 
@@ -21,7 +21,7 @@ performances, rho_coll = pgpe.learn(
     step_size=0.9, 
     batch_size=10, 
     task_horizon=30, 
-    max_iterations=100,
+    max_iterations=1000,
     step_size_strategy='vanish'
     )
 
@@ -39,6 +39,7 @@ for rho in rho_coll:
 plt.plot(performances) 
 plt.show()
 
+
 with open('./output.txt', "w+") as file: 
     
     
@@ -51,15 +52,11 @@ with open('./output.txt', "w+") as file:
         file.write("\n") 
 
 
-if eval: 
+if eval:
     
     print("EVALUATION OF THE MODEL") 
 
-    theta = hp.resample() 
     rho = hp.get_rho()
-    print("theta before training = ", theta_before)
-    print("theta after learnning = ", theta) 
-    
     print("rho before = ", rho_before) 
     print("tho after = ", rho) 
     
@@ -68,16 +65,12 @@ if eval:
     
     for i in range(120):
         a = hp.act(o) 
-        o, r, trunc, term, _ = env.step(a)
+        o, r, done, _ = env.step(a)
         
-        done = trunc or term
-        env.render()
         
-        if done: 
-            env.reset() 
-            
+        #env.render()
         
         if done: 
+            print("done, resetting the env...") 
             env.reset() 
             
-        

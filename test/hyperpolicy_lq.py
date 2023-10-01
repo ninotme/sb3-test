@@ -4,6 +4,7 @@ from numpy.random import normal
 
 forced_policy = False
 verbose = False
+debug = True
 
 
 class GaussianPolicy:
@@ -20,9 +21,6 @@ class GaussianPolicy:
         
 
         self.theta = []
-        
-        
-        
         print("done initializing")
 
     # Called by algorithm
@@ -38,85 +36,83 @@ class GaussianPolicy:
 
     #calcolo del delta_rho
     def eval_gradient(self, actor_params, disc_returns, use_baseline=False):
-        N = len(disc_returns)
-
-        print("actor_params: ", actor_params, "len ",
- len(actor_params))
-        #sum_sigma = [0 for _ in range(len(actor_params[0])) ]
-        sum_sigma = np.full(self.param_number, 0) 
-        
-        #sum_mu = [0 for _ in range( len(actor_params[0]) ) ]
-        sum_mu = np.full(self.param_number, 0)
-
-        print("-------in eval_gradient()________") 
-        print("disc_returns = ", disc_returns) 
-        print("actor_params = ", actor_params) 
         
 
-        total_mu_score = np.full(self.param_number, 0.0) 
-        total_sigma_score = np.full(self.param_number, 0.0) 
-        #this can be done in a smarter way TBD once it works
-        for i in range(N):
+        print("actor_params: ", actor_params, "len ", len(actor_params))
+        
+        
+        if verbose:
+            print("-------in eval_gradient()________") 
+            print("disc_returns = ", disc_returns) 
+            print("actor_params = ", actor_params) 
+        
+        grad_mu = disc_returns * (actor_params - self.mu) / (self.sigma ** 2) 
+        grad_sigma = disc_returns * (( (actor_params - self.mu) ** 2) - self.sigma ** 2 ) / (self.sigma ** 3)
+        
+        grad_mu = np.mean(grad_mu) 
+        grad_sigma = np.mean(grad_sigma) 
+        
+        
+        # if debug=True we compute intermediate result for troubleshooting
+        if debug: 
+            N = len(disc_returns)
+            sum_sigma = np.full(self.param_number, 0) 
+            sum_mu = np.full(self.param_number, 0)
+
+            total_mu_score = np.full(self.param_number, 0.0) 
+            total_sigma_score = np.full(self.param_number, 0.0)
             
-            
-            # param and return associated to episode i 
-            theta = np.array(actor_params[i]) 
-            disc_ret = disc_returns[i]
-            score_mu = (theta - self.mu) /   self.sigma ** 2 
+            for i in range(N):
+                # param and return associated to episode i 
+                theta = np.array(actor_params[i]) 
+                disc_ret = disc_returns[i]
+                score_mu = (theta - self.mu) /   self.sigma ** 2 
+                    
                 
                 
-            # OVERFLOW!?!?!?
-            print("Checking for sigma overflow.....")
-            term1 = (theta - self.mu) 
-            print("theta - mu = ", term1) 
-            
-            numerator = term1 ** 2 - self.sigma ** 2
-            print("numerator = ", numerator) 
-            
-            score_sigma = ((theta - self.mu)**2 - (self.sigma ** 2)) / (self.sigma ** 3)
+                # OVERFLOW!?!?!?
+                print("Checking for sigma overflow.....")
+                term1 = (theta - self.mu) 
+                print("theta - mu = ", term1) 
                 
-            
-            print("===========score_mu: ", score_mu) 
-            print("score_mu = ", score_mu)
-            print("len(score_mu) = ", len(score_mu)) 
-            
-            print("multiply ", np.multiply(score_mu, disc_ret)) 
-            #total_sigma_score += score_sigma * disc_ret
-            print("==========score_sigma: ", score_sigma) 
-            
-            
-           
-            
-            if verbose: 
+                numerator = term1 ** 2 - self.sigma ** 2
+                print("numerator = ", numerator) 
+                
+                score_sigma = ((theta - self.mu)**2 - (self.sigma ** 2)) / (self.sigma ** 3)
+                    
+                
+                print("===========score_mu: ", score_mu) 
+                print("score_mu = ", score_mu)
+                print("len(score_mu) = ", len(score_mu)) 
+                
+                print("multiply ", np.multiply(score_mu, disc_ret)) 
+                #total_sigma_score += score_sigma * disc_ret
+                print("==========score_sigma: ", score_sigma) 
+                
                 print("theta = ", theta)
                 print("score_mu = ", score_mu)
                 print("score_sigma = ", score_sigma)
                 #print("mus = ", mus) 
                 #print("sigmas = ", sigmas) 
-                    
-            
-            
-            # sum to the toatal score
-            total_mu_score += np.multiply(score_mu[0], disc_ret) 
-            total_sigma_score += np.multiply(score_sigma[0], disc_ret) 
-            
-            
-            if verbose: 
+                        
+                
+                
+                # sum to the toatal score
+                total_mu_score += np.multiply(score_mu[0], disc_ret) 
+                total_sigma_score += np.multiply(score_sigma[0], disc_ret) 
                 print("total_mu_score = ", total_mu_score) 
                 print("toatal_sigma_score = ", total_sigma_score) 
-                
-        grad_mu = np.divide(total_mu_score, N)
-        grad_sigma = np.divide(total_sigma_score, N)
+                    
+            _grad_mu = np.divide(total_mu_score, N)
+            _grad_sigma = np.divide(total_sigma_score, N)
+            print("grad_sigma = ", grad_sigma) 
+            print("self.sigma = ", self.sigma)
         
-        if verbose: 
-            print('[', grad_mu, ', \n', grad_sigma, ']' ) 
+         
+            print('[', grad_mu, ', \n', grad_sigma, ']' )
+            grad_mu = _grad_mu
+            grad_sigma = _grad_sigma
         
-        #2 * dim(param_space) vector
-        
-       
-        
-        print("grad_sigma = ", grad_sigma) 
-        print("self.sigma = ", self.sigma) 
         return [grad_mu, grad_sigma]
 
        
