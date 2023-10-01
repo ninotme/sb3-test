@@ -4,7 +4,7 @@ from numpy.random import normal
 
 forced_policy = False
 verbose = False
-debug = True
+debug = False
 
 
 class GaussianPolicy:
